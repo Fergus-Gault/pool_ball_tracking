@@ -3,7 +3,7 @@ from collections import deque
 import cv2 as cv
 
 class MultiBallTracker:
-    def __init__(self, buffer_size=64, max_distance=20, min_area=2000):
+    def __init__(self, buffer_size=64, max_distance=50, min_area=1000):
         """
         Initialize multi-ball tracker.
         :param buffer_size: Maximum trajectory points to store for each ball.
@@ -13,7 +13,7 @@ class MultiBallTracker:
         self.buffer_size = buffer_size
         self.max_distance = max_distance
         self.min_area = min_area  # Ignore contours smaller than this area
-        self.ball_tracks = {}  # {ball_id: {"positions": deque, "radius": radius}}
+        self.ball_tracks = {}  # {ball_id: {"positions": deque, "radius": radius, "velocity": velocity}}
         self.next_ball_id = 0
 
     def update_tracks(self, detected_balls):
@@ -34,9 +34,21 @@ class MultiBallTracker:
 
             # Try to match the ball with an existing track
             for ball_id, track in self.ball_tracks.items():
-                if np.linalg.norm(position - np.array(track["positions"][-1])) < self.max_distance:
-                    matched_id = ball_id
-                    break
+                # Prediction: the predicted position based on the last known velocity
+                if len(track["positions"]) > 1:
+                    velocity = (track["positions"][-1] - track["positions"][-2])
+                    predicted_position = track["positions"][-1] + velocity
+                    predicted_distance = np.linalg.norm(position - predicted_position)
+
+                    # Match if the predicted distance is within the max_distance threshold
+                    if predicted_distance < self.max_distance:
+                        matched_id = ball_id
+                        break
+                else:
+                    # First frame for this ball, use the last position
+                    if np.linalg.norm(position - np.array(track["positions"][-1])) < self.max_distance:
+                        matched_id = ball_id
+                        break
 
             if matched_id is not None:
                 # Update the existing track
@@ -85,3 +97,4 @@ class MultiBallTracker:
 
                 thickness = int(np.sqrt(self.buffer_size / float(i + 1)) * 2.5)
                 cv.line(frame, tuple(positions[i - 1].astype(int)), tuple(positions[i].astype(int)), (0, 0, 255), thickness)
+
