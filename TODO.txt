@@ -1,0 +1,3 @@
+Create further config files, allowing ALL settings such as distance, radius, mins and maxes to be adjusted from there
+Load configs on program start and pass to classes
+Eventually dynamic config?
