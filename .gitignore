@@ -1,1 +1,2 @@
-config\colors.yaml
+*.yaml
+__pycache__/
