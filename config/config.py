@@ -34,7 +34,7 @@ def load_config(profile):
                         "buffer_size": 64,
                         "max_distance": 50,
                         "min_area": 1000,
-                        "circle_outline_color": [0, 255, 255],  # Use list instead of tuple
+                        "circle_outline_color": [0, 255, 255],
                         "circle_thickness": 2,
                         "radius_line_color": [255, 0, 0],
                         "radius_line_thickness": 2,
@@ -43,7 +43,7 @@ def load_config(profile):
                         "font_color": [255, 255, 255],
                         "font_scale": 0.5,
                         "font_thickness": 2,
-                        "tracking_line_color": [0, 0, 255],  # List instead of alias
+                        "tracking_line_color": [0, 0, 255],
                     },
                 }
             }
