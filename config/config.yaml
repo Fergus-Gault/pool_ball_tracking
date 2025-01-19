@@ -1,0 +1,34 @@
+profiles:
+  default:
+    detector:
+      profile: default
+      radius: 50
+    tracking:
+      buffer_size: 64
+      center_point_color:
+      - 0
+      - 0
+      - 255
+      center_point_radius: 5
+      circle_outline_color:
+      - 0
+      - 255
+      - 255
+      circle_thickness: 2
+      font_color:
+      - 255
+      - 255
+      - 255
+      font_scale: 0.5
+      font_thickness: 2
+      max_distance: 50
+      min_area: 1000
+      radius_line_color:
+      - 255
+      - 0
+      - 0
+      radius_line_thickness: 2
+      tracking_line_color:
+      - 0
+      - 0
+      - 255
