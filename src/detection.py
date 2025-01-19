@@ -27,9 +27,9 @@ class BallDetector:
         hsv_frame = self._process_frame(frame)
         detected_balls = []
 
-        for color_name, color_value in self.color_ranges.items():
+        for color_name, color_values in self.color_ranges.items():
             # Get lower and upper limits from base color
-            lower, upper = get_limits(color_value)
+            lower, upper = get_limits(color_values)
 
             # Create a binary mask for the color range
             mask = cv.inRange(hsv_frame, lower, upper)
@@ -49,7 +49,7 @@ class BallDetector:
                     ((x, y), radius) = cv.minEnclosingCircle(contour)
                     M = cv.moments(contour)
 
-                    if M["m00"] > 0 and radius > 20:  # Only consider valid contours with radius > 20
+                    if M["m00"] > 0 and radius > 50:  # Only consider valid contours with radius > 20
                         center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
                         detected_balls.append({
                             "position": center,
@@ -72,7 +72,7 @@ class BallDetector:
         :param frame: frame to be processed
         :return: the processed frame
         """
-        hsv_frame = cv.cvtColor(frame, cv.COLOR_RGB2HSV)
+        hsv_frame = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
 
         return hsv_frame
     
@@ -100,10 +100,9 @@ class BallDetector:
         """
         with open(filepath, 'r') as file:
             data = yaml.safe_load(file)
-
-        if "profiles" in data:
-            return data["profiles"][profile]["colors"]
+        if "profiles" in data and profile in data["profiles"]:
+            return data["profiles"][profile]
         else:
-            return data["colors"]
+            raise ValueError(f"Profile '{profile}' not found in {filepath}.")
         
 
