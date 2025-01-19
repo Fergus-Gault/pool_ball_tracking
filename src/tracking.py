@@ -3,16 +3,17 @@ from collections import deque
 import cv2 as cv
 
 class MultiBallTracker:
-    def __init__(self, buffer_size=64, max_distance=50, min_area=1000):
+    def __init__(self, config):
         """
         Initialize multi-ball tracker.
         :param buffer_size: Maximum trajectory points to store for each ball.
         :param max_distance: Maximum distance to associate a detection with an existing ball.
         :param min_area: Minimum contour area to consider it as a valid detection.
         """
-        self.buffer_size = buffer_size
-        self.max_distance = max_distance
-        self.min_area = min_area  # Ignore contours smaller than this area
+        self.config = config
+        self.buffer_size = config["buffer_size"]
+        self.max_distance = config["max_distance"]
+        self.min_area = config["min_area"]  # Ignore contours smaller than this area
         self.ball_tracks = {}  # {ball_id: {"positions": deque, "radius": radius, "velocity": velocity}}
         self.next_ball_id = 0
 
@@ -77,18 +78,18 @@ class MultiBallTracker:
             center = tuple(positions[-1].astype(int))
 
             # Draw the circle outline
-            cv.circle(frame, center, int(radius), (0, 255, 255), 2)
+            cv.circle(frame, center, int(radius), self.config["circle_outline_color"], self.config["circle_thickness"])
 
             # Draw the radius as a line
             edge_point = (center[0] + int(radius), center[1])
-            cv.line(frame, center, edge_point, (255, 0, 0), 2)
+            cv.line(frame, center, edge_point, self.config["radius_line_color"], self.config["radius_line_thickness"])
 
             # Draw the center point
-            cv.circle(frame, center, 5, (0, 0, 255), -1)
+            cv.circle(frame, center, self.config["center_point_radius"], self.config["center_point_color"], -1)
 
             # Label the ball ID
             cv.putText(frame, f"ID: {ball_id}", (center[0] - 20, center[1] - 20),
-                       cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                       cv.FONT_HERSHEY_SIMPLEX, self.config["font_scale"], self.config["font_color"], self.config["font_thickness"])
 
             # Draw the trajectory
             for i in range(1, len(positions)):
@@ -96,5 +97,5 @@ class MultiBallTracker:
                     continue
 
                 thickness = int(np.sqrt(self.buffer_size / float(i + 1)) * 2.5)
-                cv.line(frame, tuple(positions[i - 1].astype(int)), tuple(positions[i].astype(int)), (0, 0, 255), thickness)
+                cv.line(frame, tuple(positions[i - 1].astype(int)), tuple(positions[i].astype(int)), self.config["tracking_line_color"], thickness)
 

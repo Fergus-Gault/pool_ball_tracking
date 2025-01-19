@@ -3,20 +3,18 @@ import imutils
 import cv2 as cv
 import yaml
 import numpy as np
-from util import get_limits
+from src.util import get_limits
 
 class BallDetector:
-    def __init__(self, color_ranges=None, profile="default"):
+    def __init__(self, config):
         """
         Init ball detector with HSV color ranges
-        :param color_ranges: Optional color ranges
-        :param profile: color profile to use
+        :param config: The configuration dictionary (e.g., from load_config)
         """
-        if color_ranges is None:
-            self.color_ranges = self._load_color_ranges(filepath="config/colors.yaml", profile=profile)
-        else:
-            self.color_ranges = color_ranges
-
+        self.config = config
+        self.profile = self.config["profile"]  # Access profile
+        self.radius = self.config["radius"]  # Access radius
+        self.color_ranges = self._load_color_ranges(filepath="config/colors.yaml", profile=self.profile)
 
     def detect(self, frame):
         """
@@ -27,6 +25,7 @@ class BallDetector:
         hsv_frame = self._process_frame(frame)
         detected_balls = []
 
+        # Iterate over color ranges loaded from config file
         for color_name, color_values in self.color_ranges.items():
             # Get lower and upper limits from base color
             lower, upper = get_limits(color_values)
@@ -34,7 +33,7 @@ class BallDetector:
             # Create a binary mask for the color range
             mask = cv.inRange(hsv_frame, lower, upper)
 
-            # Clean the mask using morphological operations (stronger cleaning)
+            # Clean the mask using morphological operations
             mask = self._clean_mask(mask)
 
             # Find contours in the mask
@@ -49,7 +48,7 @@ class BallDetector:
                     ((x, y), radius) = cv.minEnclosingCircle(contour)
                     M = cv.moments(contour)
 
-                    if M["m00"] > 0 and radius > 50:  # Only consider valid contours with radius > 20
+                    if M["m00"] > 0 and radius > self.radius:  # Use the radius from config
                         center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
                         detected_balls.append({
                             "position": center,
@@ -61,9 +60,6 @@ class BallDetector:
             cv.imshow(f"{color_name} Mask", mask)  # Show the color mask for debugging
 
         return detected_balls
-
-
-#### CREATE NEW PROGRAM TO ADJUST HSV VALUES FOR DIFFERENT COLORS AND SAVE INTO COLORS.YAML
 
 
     def _process_frame(self, frame):
