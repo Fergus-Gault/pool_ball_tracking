@@ -1,0 +1,31 @@
+profiles:
+  default:
+    green:
+      H_lower: 29
+      H_upper: 58
+      S_lower: 0
+      S_upper: 255
+      V_lower: 0
+      V_upper: 45
+    red:
+      H_lower: 0
+      H_upper: 5
+      S_lower: 100
+      S_upper: 255
+      V_lower: 100
+      V_upper: 255
+  low_light:
+    red:
+      H_lower: 0
+      H_upper: 10
+      S_lower: 100
+      S_upper: 255
+      V_lower: 100
+      V_upper: 255
+    white:
+      H_lower: 0
+      H_upper: 82
+      S_lower: 0
+      S_upper: 60
+      V_lower: 131
+      V_upper: 210
